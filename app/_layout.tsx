@@ -24,6 +24,9 @@ export default function RootLayout() {
       }}
     >
       <Stack.Screen name="home" />
+      <Stack.Screen name="management" />
+      <Stack.Screen name="finance" />
+      <Stack.Screen name="alert" />
     </Stack>
   );
 }

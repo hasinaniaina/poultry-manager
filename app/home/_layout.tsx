@@ -1,9 +1,12 @@
-import { Stack } from 'expo-router';
+import CustomDrawerContent from '@/components/home/CustomDrawerContent';
+import { Drawer } from 'expo-router/drawer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-export default function StackLayout() {
+
+export default function DrawerLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="home" options={{ headerShown: false }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer drawerContent={CustomDrawerContent}  screenOptions={{ headerShown: false }} />
+    </GestureHandlerRootView>
   );
 }

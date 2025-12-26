@@ -108,7 +108,7 @@ export default function Carousel() {
 
 const styles = StyleSheet.create({
   farmSurveyContainer: {
-    paddingTop: 50,
+    paddingTop: appSettings.sectionContainer.paddingTop,
   },
   farmSurvey: {
     fontSize: appSettings.title.meddium,
