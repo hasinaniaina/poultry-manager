@@ -1,4 +1,6 @@
+import { removePoultry } from "@/constants/controller";
 import { appSettings } from "@/constants/settings";
+import { useChangedStore } from "@/constants/store";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import {
@@ -14,11 +16,15 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 export default function Modals({
   modalVisible,
   setModalVisible,
+  id,
 }: {
   modalVisible: boolean;
   setModalVisible: (val: boolean) => void;
+  id?: string | null;
 }) {
   const displayBlackground = !modalVisible ? "none" : "flex";
+  const setChangedTrue = useChangedStore((state) => state.setChangedTrue);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.centeredView}>
@@ -35,7 +41,11 @@ export default function Modals({
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-            <Ionicons name="close-circle" size={50} color={appSettings.color.red} />
+              <Ionicons
+                name="close-circle"
+                size={50}
+                color={appSettings.color.red}
+              />
               <Text style={styles.modalText}>Delete</Text>
               <Text style={styles.TextConfirmation}>
                 Are you sure you want do to this action?
@@ -45,11 +55,21 @@ export default function Modals({
                   style={[styles.button, styles.buttonClose]}
                   onPress={() => setModalVisible(!modalVisible)}
                 >
-                  <Text style={[styles.textStyle, styles.TextCancel]}>Cancel</Text>
+                  <Text style={[styles.textStyle, styles.TextCancel]}>
+                    Cancel
+                  </Text>
                 </Pressable>
                 <Pressable
                   style={[styles.button, styles.buttonDelete]}
-                  onPress={() => setModalVisible(!modalVisible)}
+                  onPress={async () => {
+                    const result = await removePoultry(id!);
+
+                    if (result) {
+                      setChangedTrue();
+                      
+                      setModalVisible(!modalVisible);
+                    }
+                  }}
                 >
                   <Text style={styles.textStyle}>Delete</Text>
                 </Pressable>
@@ -94,21 +114,19 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 10,
     paddingVertical: 10,
-    paddingHorizontal:20,
-
+    paddingHorizontal: 20,
   },
   buttonDelete: {
-    backgroundColor: appSettings.color.veryLowGrey
+    backgroundColor: appSettings.color.veryLowGrey,
   },
   buttonClose: {
-    backgroundColor: appSettings.color.red
+    backgroundColor: appSettings.color.red,
   },
   textStyle: {
     color: "white",
     textAlign: "center",
   },
-  TextCancel: {
-  },
+  TextCancel: {},
   modalText: {
     marginBottom: 20,
     textAlign: "center",
@@ -122,6 +140,6 @@ const styles = StyleSheet.create({
   buttonModalContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "100%"
-  }
+    width: "100%",
+  },
 });

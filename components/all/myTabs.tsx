@@ -1,10 +1,9 @@
 import { appSettings } from "@/constants/settings";
-import { BottomSheetStatusContext } from "@/constants/utils";
+import { useBottomSheetStore } from "@/constants/store";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { PlatformPressable, Text } from "@react-navigation/elements";
+import { PlatformPressable } from "@react-navigation/elements";
 import { useLinkBuilder, useNavigationState, useRoute } from "@react-navigation/native";
-import { useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyBottomSheet from "./MyBottomSheet";
 
@@ -21,18 +20,17 @@ export default function MyTabs({
   const { buildHref } = useLinkBuilder();
   const router = useRoute();
 
-  const [bottomSheetStatus, setBottomSheetStatus] = useState<boolean>(false);
 
-  const routeName = useNavigationState((state) => {
+  const routeNameTmp = useNavigationState((state) => {
     return state.routes[state.index].name == "index" 
       ? (router.params as {title: string}).title
       : state.routes[state.index].name
 
   });
-
-  // const routeName = getRouteName(router);
-
-  
+  const setRouteName = useBottomSheetStore((state) => state.setRouteName);
+  const setBottomSheetStatus = useBottomSheetStore((state) => state.setBottomSheetStatus);
+  const bottomSheetStatus = useBottomSheetStore((state) => state.bottomSheetStatus);
+ 
   
 
   return (
@@ -113,17 +111,17 @@ export default function MyTabs({
       })}
       <TouchableOpacity
         style={styles.buttonAdd}
-        onPress={() => setBottomSheetStatus(!bottomSheetStatus)}
+        onPress={() => 
+          {
+            setBottomSheetStatus(true)
+            setRouteName(routeNameTmp)
+          }}
       >
         <Ionicons name="add-circle" size={60} color={appSettings.color.blue} />
       </TouchableOpacity>
 
       {bottomSheetStatus && (
-        <BottomSheetStatusContext.Provider
-          value={{ bottomSheetStatus, setBottomSheetStatus, routeName }}
-        >
           <MyBottomSheet />
-        </BottomSheetStatusContext.Provider>
       )}
     </View>
   );

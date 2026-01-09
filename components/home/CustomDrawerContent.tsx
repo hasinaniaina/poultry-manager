@@ -45,7 +45,7 @@ export default function CustomDrawerContent(props: any) {
         <Text style={styles.menuText}>Finance</Text>
         <Ionicons name="chevron-forward-outline" size={20} color="black" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menuItem} onPress={() => {
+      {/* <TouchableOpacity style={styles.menuItem} onPress={() => {
         navigation.navigate({pathname:"/stockManagement",  params: {title: "stockManagement"}});
       }}>
         <Ionicons
@@ -56,7 +56,7 @@ export default function CustomDrawerContent(props: any) {
         />
         <Text style={styles.menuText}>Stock management</Text>
         <Ionicons name="chevron-forward-outline" size={20} color="black" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity style={styles.menuItem} onPress={() => {
         navigation.navigate({pathname:"/alert",  params: {title: "alert"}});
       }}>

@@ -10,7 +10,8 @@ export const appSettings = {
     lowGrey: "#B4B4B4",
     mediumGrey: "#717171",
     blue: "#4EABD9",
-    red: "#F24A41"
+    red: "#F24A41",
+    green: "#447a70"
   },
   sectionContainer: {
     paddingTop: 10,

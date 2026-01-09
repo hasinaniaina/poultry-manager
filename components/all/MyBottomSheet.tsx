@@ -1,7 +1,7 @@
 import { appSettings } from "@/constants/settings";
-import { BottomSheetStatusContext } from "@/constants/utils";
+import { useBottomSheetStore } from "@/constants/store";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -13,7 +13,7 @@ import {
   Text,
   TouchableOpacity,
   UIManager,
-  View
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AlertInputs from "../alert/alertInputs";
@@ -23,8 +23,11 @@ import EggsInputs from "../management/eggs/eggsInputs";
 import PoultryInputs from "../management/Poultry/poultryInputs";
 
 export default function MyBottomSheet() {
-  const bottomSheetStatusContext = useContext(BottomSheetStatusContext);
-  
+  const setBottomSheetStatus = useBottomSheetStore((state) => state.setBottomSheetStatus);
+  const routeName = useBottomSheetStore((state) =>  state.routeName);
+  const bottomSheetStatus = useBottomSheetStore((state) => state.bottomSheetStatus);
+  const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
+
   const { top, bottom } = useSafeAreaInsets();
   const tabLayoutRef = useRef(null);
   const [tabLayoutPosition, setTabLayoutPosition] = useState({ y: 0 });
@@ -32,9 +35,9 @@ export default function MyBottomSheet() {
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   // Récupérer la position du tabLayout
-   const measureTabLayout = () => {
+  const measureTabLayout = () => {
     const node = findNodeHandle(tabLayoutRef.current);
-    
+
     if (node) {
       UIManager.measureInWindow(node, (x, y, width, height) => {
         const realY = y - (top + 33);
@@ -44,10 +47,8 @@ export default function MyBottomSheet() {
   };
 
   useEffect(() => {
-    
     measureTabLayout();
   }, []);
-
 
   const slideUp = () => {
     Animated.timing(slideAnim, {
@@ -63,15 +64,15 @@ export default function MyBottomSheet() {
       duration: 300,
       useNativeDriver: true,
     }).start(() => {
-      bottomSheetStatusContext?.setBottomSheetStatus(false);
+      setBottomSheetStatus(false);
     });
   };
 
   useEffect(() => {
-    if (bottomSheetStatusContext?.bottomSheetStatus) {
+    if (bottomSheetStatus) {
       slideUp();
     }
-  }, [bottomSheetStatusContext?.bottomSheetStatus]);
+  }, [bottomSheetStatus]);
 
   const translateY = slideAnim.interpolate({
     inputRange: [0, 1],
@@ -80,10 +81,11 @@ export default function MyBottomSheet() {
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 40 : 0;
 
-  
-
   return (
-    <View ref={tabLayoutRef} style={[styles.backdrop, { top: -tabLayoutPosition.y + 100 }]}>
+    <View
+      ref={tabLayoutRef}
+      style={[styles.backdrop, { top: -tabLayoutPosition.y + 100 }]}
+    >
       <KeyboardAvoidingView
         behavior="position"
         keyboardVerticalOffset={keyboardVerticalOffset}
@@ -96,22 +98,25 @@ export default function MyBottomSheet() {
         >
           <View style={styles.headerContainer}>
             <Text style={styles.title}>
-              Add {bottomSheetStatusContext?.routeName}
+              Add {routeName}
             </Text>
-            <TouchableOpacity onPress={slideDown}>
+            <TouchableOpacity onPress={() => {
+              slideDown();
+              setDataToUpdate(undefined);
+            }}>
               <Ionicons name="close" size={30} color="black" />
             </TouchableOpacity>
           </View>
 
-          {bottomSheetStatusContext?.routeName == "poultry" && (
+          {routeName == "poultry" && (
             <PoultryInputs />
           )}
-          {bottomSheetStatusContext?.routeName == "eggs" && <EggsInputs />}
-          {bottomSheetStatusContext?.routeName == "expenses" && (
+          {routeName == "eggs" && <EggsInputs />}
+          {routeName == "expenses" && (
             <ExpensesInputs />
           )}
-          {bottomSheetStatusContext?.routeName == "income" && <IncomeInputs />}
-          {bottomSheetStatusContext?.routeName == "alert" && <AlertInputs />}
+          {routeName == "income" && <IncomeInputs />}
+          {routeName == "alert" && <AlertInputs />}
         </Animated.View>
       </KeyboardAvoidingView>
     </View>
@@ -121,14 +126,13 @@ export default function MyBottomSheet() {
 const styles = StyleSheet.create({
   backdrop: {
     position: "absolute",
-    height:
-      Dimensions.get("screen").height - 80,
+    height: Dimensions.get("screen").height - 80,
     width: Dimensions.get("window").width,
     backgroundColor: "rgba(0,0,0,0.5)",
     elevation: 10,
     paddingTop: StatusBar.currentHeight || 0,
     justifyContent: "flex-end",
-    zIndex: 20
+    zIndex: 20,
   },
   content: {
     backgroundColor: "#FFF",

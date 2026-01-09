@@ -1,7 +1,11 @@
 import Modals from "@/components/management/modals";
+import { retrievePoultry } from "@/constants/controller";
+import { PoultryInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
+import { useBottomSheetStore, useChangedStore } from "@/constants/store";
+import { convertDaysToWeeks } from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -14,63 +18,93 @@ import {
 
 export default function Poultry() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [datas, setDatas] = useState<PoultryInterface[] | null>();
+  const [id, setId] = useState<string | null>();
+
+  const changed = useChangedStore((state) => state.changed);
+  const setChangedFalse = useChangedStore((state) => state.setChangedFalse);
+
+  const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
+
+  const bottomSheetStatus = useBottomSheetStore(
+    (state) => state.bottomSheetStatus
+  );
+  const setBottomSheetStatus = useBottomSheetStore(
+    (state) => state.setBottomSheetStatus
+  );
+  const routeName = useBottomSheetStore((state) => state.routeName);
+  const setRouteName = useBottomSheetStore((state) => state.setRouteName);
+
+  useEffect(() => {
+    setChangedFalse();
+
+    (async () => {
+      const poultry = await retrievePoultry();
+      setDatas(poultry);
+    })();
+  }, [changed]);
 
   return (
     <View style={styles.container}>
       <View style={styles.totalPoultryContainer}>
         <Text style={styles.total}>Total: </Text>
-        <Text style={styles.number}>60 Poultry</Text>
+        <Text style={styles.number}>{datas?.length}&nbsp;poultries</Text>
       </View>
-      <ScrollView style={styles.scroll}>
-        <TouchableOpacity style={styles.poultryItemContainer}>
-          <Image
-            source={require("@/assets/images/chicken.png")}
-            style={styles.image}
-          />
-          <View style={styles.textMonthDateContainer}>
-            <Text style={styles.text}>Lorem ipsum</Text>
-            <Text style={styles.week}>40 - 4 weeks</Text>
-            <Text style={styles.month}>6th September 2025</Text>
-          </View>
-          <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-            <Ionicons
-              name="trash-outline"
-              size={25}
-              color={appSettings.color.red}
-            />
-          </TouchableOpacity>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.poultryItemContainer}>
-          <Image
-            source={require("@/assets/images/chicken.png")}
-            style={styles.image}
-          />
-          <View style={styles.textMonthDateContainer}>
-            <Text style={styles.text}>Lorem ipsum</Text>
-            <Text style={styles.week}>40 - 4 weeks</Text>
-            <Text style={styles.month}>6th September 2025</Text>
-          </View>
-          <TouchableOpacity>
-            <Ionicons name="trash-outline" size={25} color="red" />
-          </TouchableOpacity>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.poultryItemContainer}>
-          <Image
-            source={require("@/assets/images/chicken.png")}
-            style={styles.image}
-          />
-          <View style={styles.textMonthDateContainer}>
-            <Text style={styles.text}>Lorem ipsum</Text>
-            <Text style={styles.week}>40 - 4 weeks</Text>
-            <Text style={styles.month}>6th September 2025</Text>
-          </View>
-          <TouchableOpacity>
-            <Ionicons name="trash-outline" size={25} color="red" />
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </ScrollView>
-      <Modals modalVisible={modalVisible} setModalVisible={setModalVisible} />
-
+      {datas && datas.length > 0 ? (
+        <ScrollView style={styles.scroll}>
+          {datas?.map((data: PoultryInterface) => {
+            return (
+              <TouchableOpacity
+                style={styles.poultryItemContainer}
+                key={data.id}
+                onPress={() => {
+                  setRouteName("poultry");
+                  setBottomSheetStatus(true);
+                  setDataToUpdate(data);
+                }}
+              >
+                <Image
+                  source={require("@/assets/images/chicken.png")}
+                  style={styles.image}
+                />
+                <View style={styles.textMonthDateContainer}>
+                  <Text style={styles.text}>{data.groupName}&nbsp;group</Text>
+                  <Text style={styles.week}>
+                    { 
+                      convertDaysToWeeks(data.age!, data.createdDate!)
+                    }
+                  </Text>
+                  <Text style={styles.month}>
+                    {data.quantity}&nbsp;poultries
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                    setId(data.id);
+                  }}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={25}
+                    color={appSettings.color.red}
+                  />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      ) : (
+        <View style={styles.noList}>
+          <Image source={require("@/assets/images/chicken-noList.png")} />
+          <Text style={styles.noListText}>No list</Text>
+        </View>
+      )}
+      <Modals
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        id={id}
+      />
     </View>
   );
 }
@@ -118,5 +152,16 @@ const styles = StyleSheet.create({
   month: {
     color: appSettings.color.blue,
     fontSize: 10,
+  },
+  noList: {
+    height: "80%",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
+  },
+  noListText: {
+    fontSize: 30,
+    fontWeight: 500,
+    paddingVertical: 20,
   },
 });

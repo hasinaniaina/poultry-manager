@@ -1,11 +1,15 @@
+import { initDatabase } from "@/constants/db";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import React, { useEffect } from "react";
+import { SQLiteProvider } from "expo-sqlite";
+import React, { useEffect, useState } from "react";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/Manjari-Regular.ttf"),
   });
+
+  const [changed, setChanged] = useState<boolean>(false);
 
   useEffect(() => {
     if (loaded) {
@@ -18,15 +22,17 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="home" />
-      <Stack.Screen name="management" />
-      <Stack.Screen name="finance" />
-      <Stack.Screen name="alert" />
-    </Stack>
+    <SQLiteProvider databaseName="poultryManager" onInit={initDatabase}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="home" />
+        <Stack.Screen name="management" />
+        <Stack.Screen name="finance" />
+        <Stack.Screen name="alert" />
+      </Stack>
+    </SQLiteProvider>
   );
 }

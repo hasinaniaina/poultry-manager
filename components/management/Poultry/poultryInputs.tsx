@@ -1,24 +1,108 @@
+import { createPoultry, editPoultry } from "@/constants/controller";
+import { PoultryInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
-import React from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useBottomSheetStore, useChangedStore } from "@/constants/store";
+import { toastConfig } from "@/constants/toastConfig";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function PoultryInputs() {
+  const dataToUpdate = useBottomSheetStore((state) => state.dataToUpdate);
+
+  const [data, setData] = useState<PoultryInterface | undefined>(dataToUpdate);
+
+  const setChangedTrue = useChangedStore((state) => state.setChangedTrue);
+  const addOrUpdate = useBottomSheetStore((state) => state.addOrUpdate);
+  const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
+  const setBottomSheetStatus = useBottomSheetStore(
+    (state) => state.setBottomSheetStatus
+  );
+
+  const sendData = async () => {
+    if (data && data?.age && data?.groupName && data?.quantity) {
+      let result: any = {};
+
+      if (dataToUpdate) {
+        const dataTmp = { ...data };
+        dataTmp.id = dataToUpdate.id;
+        result = await editPoultry(dataTmp);
+      } else {
+        result = await createPoultry(data!);
+      }
+
+      if (!result) {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong!",
+        });
+      } else {
+        Toast.show({
+          type: "success",
+          text1: "Poultry inserted!",
+        });
+
+        setChangedTrue();
+        setData(undefined);
+        setDataToUpdate(undefined);
+
+        if (dataToUpdate) {
+          setTimeout(() => {
+            setBottomSheetStatus(false);
+          }, 1000);
+        }
+      }
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "All fields should not be empty!",
+      });
+    }
+  };
+
   return (
     <View>
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
           <Text style={styles.titleInput}>Group name</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput style={styles.input}></TextInput>
+            <TextInput
+              style={styles.input}
+              value={data?.groupName}
+              onChangeText={(groupName) => {
+                let poultryTmp = { ...data! };
+                (poultryTmp as PoultryInterface).groupName = groupName;
+                setData(poultryTmp);
+              }}
+            ></TextInput>
           </View>
         </View>
       </View>
 
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Number</Text>
+          <Text style={styles.titleInput}>Quantity</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput keyboardType="numeric" style={styles.input}></TextInput>
+            <TextInput
+              keyboardType="numeric"
+              style={styles.input}
+              value={data?.quantity ? data?.quantity!.toString() : ""}
+              onChangeText={(quantity) => {
+                let poultryTmp = { ...data! };
+                (poultryTmp as PoultryInterface).quantity = !isNaN(
+                  parseInt(quantity)
+                )
+                  ? parseInt(quantity)
+                  : null;
+                setData(poultryTmp);
+              }}
+            ></TextInput>
           </View>
         </View>
       </View>
@@ -27,19 +111,47 @@ export default function PoultryInputs() {
         <View style={styles.InputContainer}>
           <Text style={styles.titleInput}>Age (days number)</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput keyboardType="numeric" style={styles.input}></TextInput>
+            <TextInput
+              keyboardType="numeric"
+              style={styles.input}
+              value={data?.age ? data?.age.toString() : ""}
+              onChangeText={(age) => {
+                let poultryTmp = { ...data! };
+                (poultryTmp as PoultryInterface).age = !isNaN(parseInt(age))
+                  ? parseInt(age)
+                  : null;
+                setData(poultryTmp);
+              }}
+            ></TextInput>
           </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.buttonAdd}>
-        <Text style={styles.buttonText}>Add</Text>
-      </TouchableOpacity>
+      {dataToUpdate ? (
+        <TouchableOpacity
+          style={styles.buttonAdd}
+          onPress={async () => {
+            await sendData();
+          }}
+        >
+          <Text style={styles.buttonText}>Update</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.buttonAdd}
+          onPress={async () => {
+            await sendData();
+          }}
+        >
+          <Text style={styles.buttonText}>Add</Text>
+        </TouchableOpacity>
+      )}
+
+      <Toast config={toastConfig} position="bottom" bottomOffset={0} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-    
   inputItem: {
     marginBottom: 20,
   },
@@ -71,4 +183,4 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
   },
-})
+});

@@ -1,11 +1,11 @@
 import { appSettings } from "@/constants/settings";
 import React, { useState } from "react";
 import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
@@ -17,13 +17,42 @@ export default function IncomeInputs() {
     { label: "Item 1", value: "1" },
     { label: "Item 2", value: "2" },
   ];
+
+  const data2 = [
+    { label: "Poultry", value: "1" },
+    { label: "Eggs", value: "2" },
+    { label: "other", value: "2" },
+  ];
   return (
     <View>
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Label</Text>
+          <Text style={styles.titleInput}>Group</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput keyboardType="default" style={styles.input}></TextInput>
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              iconStyle={styles.iconStyle}
+              data={data2}
+              search
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Select label"
+              searchPlaceholder="Search..."
+              value={"test"}
+              onChange={(item) => {}}
+              //   renderLeftIcon={() => (
+              //     <AntDesign
+              //       style={styles.icon}
+              //       color="black"
+              //       name="arrow-down"
+              //       size={20}
+              //     />
+              //   )}
+            />
           </View>
         </View>
       </View>
@@ -31,6 +60,14 @@ export default function IncomeInputs() {
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
           <Text style={styles.titleInput}>Price</Text>
+          <View style={styles.listInputcontainer}>
+            <TextInput keyboardType="numeric" style={styles.input}></TextInput>
+          </View>
+        </View>
+      </View>
+      <View style={styles.inputItem}>
+        <View style={styles.InputContainer}>
+          <Text style={styles.titleInput}>Quantity</Text>
           <View style={styles.listInputcontainer}>
             <TextInput keyboardType="numeric" style={styles.input}></TextInput>
           </View>
