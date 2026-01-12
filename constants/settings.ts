@@ -11,7 +11,7 @@ export const appSettings = {
     mediumGrey: "#717171",
     blue: "#4EABD9",
     red: "#F24A41",
-    green: "#447a70"
+    green: "#447a70",
   },
   sectionContainer: {
     paddingTop: 10,
@@ -38,4 +38,5 @@ export const appSettings = {
       flex: 1,
     },
   },
+                     
 };

@@ -1,3 +1,4 @@
+import NoList from "@/components/all/noList";
 import Modals from "@/components/management/modals";
 import { retrievePoultry } from "@/constants/controller";
 import { PoultryInterface } from "@/constants/interface";
@@ -95,15 +96,13 @@ export default function Poultry() {
           })}
         </ScrollView>
       ) : (
-        <View style={styles.noList}>
-          <Image source={require("@/assets/images/chicken-noList.png")} />
-          <Text style={styles.noListText}>No list</Text>
-        </View>
+        <NoList imageUrl={require("@/assets/images/chicken-noList.png")}/>
       )}
       <Modals
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         id={id}
+        view="poultry"
       />
     </View>
   );
@@ -152,16 +151,5 @@ const styles = StyleSheet.create({
   month: {
     color: appSettings.color.blue,
     fontSize: 10,
-  },
-  noList: {
-    height: "80%",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column",
-  },
-  noListText: {
-    fontSize: 30,
-    fontWeight: 500,
-    paddingVertical: 20,
   },
 });

@@ -1,29 +1,107 @@
-import { appSettings } from "@/constants/settings";
-import React, { useState } from "react";
 import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  createExpense,
+  editExpense,
+  retrievePoultry,
+} from "@/constants/controller";
+import { ExpenseInterface, PoultryInterface } from "@/constants/interface";
+import { appSettings } from "@/constants/settings";
+import { useBottomSheetStore, useChangedStore } from "@/constants/store";
+import { toastConfig } from "@/constants/toastConfig";
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import Toast from "react-native-toast-message";
 
 export default function ExpensesInputs() {
-  const [eggsDate, setEggsDate] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const dataToUpdate = useBottomSheetStore((state) => state.dataToUpdate);
+  const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
+  const setBottomSheetStatus = useBottomSheetStore(
+    (state) => state.setBottomSheetStatus
+  );
 
-  const data = [
-    { label: "Item 1", value: "1" },
-    { label: "Item 2", value: "2" },
-  ];
+  const [data, setData] = useState<ExpenseInterface | undefined>(dataToUpdate);
+
+  const [groups, setGroups] = useState<PoultryInterface[] | null>();
+  const changed = useChangedStore((state) => state.changed);
+  const setChangedTrue = useChangedStore((state) => state.setChangedTrue);
+
+  let groupList: any[] = [];
+
+  groups?.map((group) => {
+    groupList.push({ label: group.groupName, value: group.id });
+  });
+
+  const sendData = async () => {
+    if (data && data?.label && data?.idPoultry && data?.price) {
+      let result: any = {};
+
+      if (dataToUpdate) {
+        const dataTmp = { ...data };
+        dataTmp.id = dataToUpdate.id;
+        result = await editExpense(dataTmp);
+      } else {
+        const result = await createExpense(data);
+      }
+
+      if (!result) {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong!",
+        });
+      } else {
+        Toast.show({
+          type: "success",
+          text1: "Expense inserted!",
+        });
+
+        setChangedTrue();
+        if (dataToUpdate) {
+          setTimeout(() => {
+            setBottomSheetStatus(false);
+            setDataToUpdate(undefined);
+          }, 1000);
+        }
+
+        setChangedTrue();
+        setData(undefined);
+      }
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "All fields should not be empty!",
+      });
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      const groupTmp = await retrievePoultry();
+      setGroups(groupTmp);
+    })();
+  }, [changed]);
+
   return (
     <View>
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
           <Text style={styles.titleInput}>Label</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput keyboardType="default" style={styles.input}></TextInput>
+            <TextInput
+              keyboardType="default"
+              style={styles.input}
+              value={data?.label}
+              onChangeText={(label) => {
+                const labelTmp = { ...data! };
+                labelTmp.label = label;
+                setData(labelTmp);
+              }}
+            ></TextInput>
           </View>
         </View>
       </View>
@@ -32,7 +110,16 @@ export default function ExpensesInputs() {
         <View style={styles.InputContainer}>
           <Text style={styles.titleInput}>Price</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput keyboardType="numeric" style={styles.input}></TextInput>
+            <TextInput
+              keyboardType="numeric"
+              style={styles.input}
+              value={data?.price.toString()}
+              onChangeText={(price) => {
+                const priceTmp = { ...data! };
+                priceTmp.price = parseFloat(price);
+                setData(priceTmp);
+              }}
+            ></TextInput>
           </View>
         </View>
       </View>
@@ -47,30 +134,36 @@ export default function ExpensesInputs() {
               selectedTextStyle={styles.selectedTextStyle}
               inputSearchStyle={styles.inputSearchStyle}
               iconStyle={styles.iconStyle}
-              data={data}
+              data={groupList!}
               search
               maxHeight={300}
               labelField="label"
               valueField="value"
               placeholder="Select Group"
               searchPlaceholder="Search..."
-              value={"test"}
-              onChange={(item) => {}}
-              //   renderLeftIcon={() => (
-              //     <AntDesign
-              //       style={styles.icon}
-              //       color="black"
-              //       name="arrow-down"
-              //       size={20}
-              //     />
-              //   )}
+              value={data?.idPoultry}
+              onChange={(group) => {
+                const groupTmp = { ...data! };
+                groupTmp.idPoultry = group.value;
+                setData(groupTmp);
+              }}
             />
           </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.buttonAdd}>
-        <Text style={styles.buttonText}>Add</Text>
+      <TouchableOpacity
+        style={styles.buttonAdd}
+        onPress={async () => {
+          await sendData();
+        }}
+      >
+        {dataToUpdate ? (
+          <Text style={styles.buttonText}>Update</Text>
+        ) : (
+          <Text style={styles.buttonText}>Add</Text>
+        )}
       </TouchableOpacity>
+      <Toast config={toastConfig} position="bottom" bottomOffset={0} />
     </View>
   );
 }

@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { PoultryInterface } from "./interface";
 
 type ChangeProp = {
     changed: boolean;
@@ -14,8 +13,8 @@ type BottomSheetProp = {
     setRouteName: (routeName: string) => void;
     addOrUpdate: string;
     setEditOrUpdate: (editOrUpdate: string) => void;
-    dataToUpdate: PoultryInterface | undefined,
-    setDataToUpdate: (dataToUpdate: PoultryInterface | undefined ) => void; 
+    dataToUpdate: any,
+    setDataToUpdate: (dataToUpdate: any ) => void; 
 }
 
 

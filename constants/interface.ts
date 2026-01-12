@@ -5,6 +5,19 @@ export interface PoultryInterface {
     age: number | null,
     createdDate: Date | null
 } 
+export interface EggInterface {
+  id: string,
+  quantity: number,
+  idPoultry: string | null
+}
+
+export interface ExpenseInterface {
+  id: string,
+  label: string,
+  price: number,
+  idPoultry: string,
+  createdDate?: string
+}
 
 export interface BottomSheetContextType {
   bottomSheetStatus: boolean;

@@ -1,6 +1,6 @@
-import { removePoultry } from "@/constants/controller";
 import { appSettings } from "@/constants/settings";
 import { useChangedStore } from "@/constants/store";
+import { removeItem } from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import {
@@ -17,10 +17,12 @@ export default function Modals({
   modalVisible,
   setModalVisible,
   id,
+  view
 }: {
   modalVisible: boolean;
   setModalVisible: (val: boolean) => void;
   id?: string | null;
+  view: string
 }) {
   const displayBlackground = !modalVisible ? "none" : "flex";
   const setChangedTrue = useChangedStore((state) => state.setChangedTrue);
@@ -62,11 +64,10 @@ export default function Modals({
                 <Pressable
                   style={[styles.button, styles.buttonDelete]}
                   onPress={async () => {
-                    const result = await removePoultry(id!);
-
+                    const result = await removeItem(id!, view);
+                    
                     if (result) {
-                      setChangedTrue();
-                      
+                      setChangedTrue();                   
                       setModalVisible(!modalVisible);
                     }
                   }}

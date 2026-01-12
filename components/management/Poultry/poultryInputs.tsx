@@ -48,15 +48,15 @@ export default function PoultryInputs() {
           text1: "Poultry inserted!",
         });
 
-        setChangedTrue();
-        setData(undefined);
-        setDataToUpdate(undefined);
-
         if (dataToUpdate) {
           setTimeout(() => {
             setBottomSheetStatus(false);
+            setDataToUpdate(undefined);
           }, 1000);
         }
+
+        setChangedTrue();
+        setData(undefined);
       }
     } else {
       Toast.show({
@@ -126,25 +126,19 @@ export default function PoultryInputs() {
           </View>
         </View>
       </View>
-      {dataToUpdate ? (
-        <TouchableOpacity
-          style={styles.buttonAdd}
-          onPress={async () => {
-            await sendData();
-          }}
-        >
+
+      <TouchableOpacity
+        style={styles.buttonAdd}
+        onPress={async () => {
+          await sendData();
+        }}
+      >
+        {dataToUpdate ? (
           <Text style={styles.buttonText}>Update</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity
-          style={styles.buttonAdd}
-          onPress={async () => {
-            await sendData();
-          }}
-        >
+        ) : (
           <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
-      )}
+        )}
+      </TouchableOpacity>
 
       <Toast config={toastConfig} position="bottom" bottomOffset={0} />
     </View>

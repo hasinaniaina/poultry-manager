@@ -5,7 +5,8 @@ import {
 } from "@react-navigation/native";
 import Moment from "moment";
 import { createContext } from "react";
-import { BottomSheetContextType, ChangedViewContextType } from "./interface";
+import { removeExpense, removePoultry } from "./controller";
+import { BottomSheetContextType, ChangedViewContextType, ExpenseInterface } from "./interface";
 
 export const dateFormated = (date: Date) => {
   return Moment(date).format("DD/MM/Y");
@@ -38,10 +39,56 @@ const intervalOfDate = (createdDate: Date): number => {
 export const convertDaysToWeeks = (days: number, createdDate: Date) => {
   const intervalOfDateTmp = intervalOfDate(createdDate);
   const daysTmp = Number(days) + Number(intervalOfDateTmp);
-  
+
   const weeks = Math.floor(daysTmp / 7);
   const remainingDays = daysTmp % 7;
   const weeksRemainingDays = weeks + " week(s) - " + remainingDays + " day(s)";
 
   return weeksRemainingDays;
 };
+
+export const removeItem = async (
+  id: string,
+  view: string
+): Promise<boolean> => {
+  let result = false;
+  switch (view) {
+    case "poultry":
+      
+      result = await removePoultry(id);
+    case "expense":
+      result = await removeExpense(id);
+  }
+
+  return result;
+};
+
+
+export const calculTotal = (table: ExpenseInterface[] | undefined) => {
+  let total = 0;
+  table?.map((value) => {
+    total += value.price;
+  });
+
+  return total;
+}
+
+export const formatDate = (date: Date) => {
+  const options: any = {day: 'numeric',  month: 'long', year: 'numeric' };
+  return date.toLocaleDateString("en-US", options);
+}
+
+export const numStr = (a: string, b: string) => {
+  a = '' + a;
+  b = b || ' ';
+  var c = '',
+      d = 0;
+  while (a.match(/^0[0-9]/)) {
+    a = a.substr(1);
+  }
+  for (var i = a.length-1; i >= 0; i--) {
+    c = (d != 0 && d % 3 == 0) ? a[i] + b + c : a[i] + c;
+    d++;
+  }
+  return c;
+}
