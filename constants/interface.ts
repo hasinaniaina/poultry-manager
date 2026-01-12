@@ -14,11 +14,19 @@ export interface EggInterface {
 export interface ExpenseInterface {
   id: string,
   label: string,
-  price: number,
+  price: number | null,
   idPoultry: string,
   createdDate?: string
 }
 
+export interface IncomeInterface {
+  id: string,
+  label: string,
+  price: number | null,
+  quantity: number | null,
+  idPoultry: string,
+  createdDate?: string
+}
 export interface BottomSheetContextType {
   bottomSheetStatus: boolean;
   setBottomSheetStatus: React.Dispatch<React.SetStateAction<boolean>>;

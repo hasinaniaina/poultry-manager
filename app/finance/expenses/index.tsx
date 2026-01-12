@@ -1,10 +1,10 @@
 import NoList from "@/components/all/noList";
 import Modals from "@/components/management/modals";
-import { retrieveExpense } from "@/constants/controller";
+import { retrieveExpense, retrievePoultry } from "@/constants/controller";
 import { ExpenseInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
 import { useBottomSheetStore, useChangedStore } from "@/constants/store";
-import { calculTotal, formatDate, numStr } from "@/constants/utils";
+import { calculTotal, formatDate, numStr, retreiveGroup } from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect, useState } from "react";
 import {
@@ -24,6 +24,7 @@ export default function Expenses() {
   const [datas, setDatas] = useState<ExpenseInterface[] | undefined>();
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [id, setId] = useState<string>();
+  const [groupName, setGroupName] = useState<string[]>([]);
   const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
 
   const bottomSheetStatus = useBottomSheetStore(
@@ -38,7 +39,12 @@ export default function Expenses() {
   useEffect(() => {
     setChangedFalse();
     (async () => {
-      const dataTmp = await retrieveExpense();
+      const dataTmp: ExpenseInterface[] | undefined = await retrieveExpense();
+      const poultries = await retrievePoultry();
+
+      const groupNameTmp = retreiveGroup(dataTmp!, poultries!);
+      setGroupName(groupNameTmp);
+
       let totalAmountTmp = calculTotal(dataTmp);
       setTotalAmount(totalAmountTmp);
       setDatas(dataTmp);
@@ -55,7 +61,7 @@ export default function Expenses() {
       </View>
       {datas && datas.length > 0 ? (
         <ScrollView style={styles.scroll}>
-          {datas?.map((data: ExpenseInterface) => {
+          {datas?.map((data: ExpenseInterface, index) => {
             return (
               <TouchableOpacity
                 key={data.id}
@@ -71,7 +77,7 @@ export default function Expenses() {
                   style={styles.image}
                 />
                 <View style={styles.textPriceDateContainer}>
-                  <Text style={styles.text}>{data.label}</Text>
+                  <Text style={styles.text}>{groupName[index]}&nbsp;-&nbsp;{data.label}</Text>
                   <Text style={styles.price}>
                     {numStr(data.price.toString(), ".")}&nbsp;Ariary
                   </Text>

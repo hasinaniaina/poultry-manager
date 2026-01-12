@@ -1,7 +1,12 @@
+import NoList from "@/components/all/noList";
 import Modals from "@/components/management/modals";
+import { retrieveIncome, retrievePoultry } from "@/constants/controller";
+import { IncomeInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
+import { useBottomSheetStore, useChangedStore } from "@/constants/store";
+import { calculTotal, formatDate, numStr, retreiveGroup } from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -14,57 +19,88 @@ import {
 
 export default function Income() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const changed = useChangedStore((state) => state.changed);
+  const setChangedFalse = useChangedStore((state) => state.setChangedFalse);
+  const [datas, setDatas] = useState<IncomeInterface[] | undefined>();
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [id, setId] = useState<string>();
+    const [groupName, setGroupName] = useState<string[]>([]);
+
+  const setBottomSheetStatus = useBottomSheetStore(
+    (state) => state.setBottomSheetStatus
+  );
+  const setRouteName = useBottomSheetStore((state) => state.setRouteName);
+
+  const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
+
+  useEffect(() => {
+    setChangedFalse();
+    (async () => {
+      const dataTmp: IncomeInterface[] | undefined = await retrieveIncome();
+
+      const poultries = await retrievePoultry();
+      const groupNameTmp = retreiveGroup(dataTmp!, poultries!);
+      setGroupName(groupNameTmp);
+
+      let totalAmountTmp = calculTotal(dataTmp);
+      setTotalAmount(totalAmountTmp);
+      setDatas(dataTmp);
+    })();
+  }, [changed]);
   return (
     <View style={styles.container}>
       <View style={styles.totalContainer}>
         <Text style={styles.total}>Total: </Text>
-        <Text style={styles.TotalPrice}>7000 Ariary</Text>
+        <Text style={styles.TotalPrice}>
+          {numStr(totalAmount.toString(), ".")}&nbsp;Ariary
+        </Text>
       </View>
-      <ScrollView style={styles.scroll}>
-        <TouchableOpacity style={styles.itemContainer}>
-          <Image
-            source={require("@/assets/images/cash.png")}
-            style={styles.image}
-          />
-          <View style={styles.textPriceDateContainer}>
-            <Text style={styles.text}>Bevolo - Vente akoho</Text>
-            <Text style={styles.price}>3000 Ariary</Text>
-            <Text style={styles.month}>6th September 2025</Text>
-          </View>
-          <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-            <Ionicons name="trash-outline" size={25} color="red" />
-          </TouchableOpacity>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.itemContainer}>
-          <Image
-            source={require("@/assets/images/cash.png")}
-            style={styles.image}
-          />
-          <View style={styles.textPriceDateContainer}>
-            <Text style={styles.text}>Bevolo - Vente akoho</Text>
-            <Text style={styles.price}>3000 Ariary</Text>
-            <Text style={styles.month}>6th September 2025</Text>
-          </View>
-          <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-            <Ionicons name="trash-outline" size={25} color="red" />
-          </TouchableOpacity>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.itemContainer}>
-          <Image
-            source={require("@/assets/images/cash.png")}
-            style={styles.image}
-          />
-          <View style={styles.textPriceDateContainer}>
-            <Text style={styles.text}>Bevolo - Vente akoho</Text>
-            <Text style={styles.price}>3000 Ariary</Text>
-            <Text style={styles.month}>6th September 2025</Text>
-          </View>
-          <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-            <Ionicons name="trash-outline" size={25} color="red" />
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </ScrollView>
-      <Modals modalVisible={modalVisible} setModalVisible={setModalVisible} />
+      {datas && datas.length > 0 ? (
+        <ScrollView style={styles.scroll}>
+          {datas?.map((data, index) => {
+            return (
+              <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => {
+                  setRouteName("income");
+                  setBottomSheetStatus(true);
+                  setDataToUpdate(data!);
+                }}
+              >
+                <Image
+                  source={require("@/assets/images/cash.png")}
+                  style={styles.image}
+                />
+                <View style={styles.textPriceDateContainer}>
+                  <Text style={styles.text}>{groupName[index]}&nbsp;-&nbsp;{data.label}</Text>
+                  <Text style={styles.price}>
+                    {numStr(data.price!.toString(), ".")}&nbsp;Ariary
+                  </Text>
+                  <Text style={styles.month}>
+                    {formatDate(new Date(data.createdDate!))}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    setId(data.id);
+                    setModalVisible(!modalVisible);
+                  }}
+                >
+                  <Ionicons name="trash-outline" size={25} color="red" />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      ) : (
+        <NoList imageUrl={require("@/assets/images/cash-nolist.png")} />
+      )}
+      <Modals
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        id={id}
+        view="income"
+      />
     </View>
   );
 }

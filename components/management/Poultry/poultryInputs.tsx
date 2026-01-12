@@ -96,9 +96,9 @@ export default function PoultryInputs() {
               onChangeText={(quantity) => {
                 let poultryTmp = { ...data! };
                 (poultryTmp as PoultryInterface).quantity = !isNaN(
-                  parseInt(quantity)
+                  Number(quantity)
                 )
-                  ? parseInt(quantity)
+                  ? Number(quantity)
                   : null;
                 setData(poultryTmp);
               }}

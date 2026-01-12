@@ -5,8 +5,14 @@ import {
 } from "@react-navigation/native";
 import Moment from "moment";
 import { createContext } from "react";
-import { removeExpense, removePoultry } from "./controller";
-import { BottomSheetContextType, ChangedViewContextType, ExpenseInterface } from "./interface";
+import { removeExpense, removeIncome, removePoultry } from "./controller";
+import {
+  BottomSheetContextType,
+  ChangedViewContextType,
+  ExpenseInterface,
+  IncomeInterface,
+  PoultryInterface,
+} from "./interface";
 
 export const dateFormated = (date: Date) => {
   return Moment(date).format("DD/MM/Y");
@@ -54,41 +60,57 @@ export const removeItem = async (
   let result = false;
   switch (view) {
     case "poultry":
-      
       result = await removePoultry(id);
     case "expense":
       result = await removeExpense(id);
+    case "income":
+      result = await removeIncome(id);
   }
 
   return result;
 };
 
-
-export const calculTotal = (table: ExpenseInterface[] | undefined) => {
+export const calculTotal = (table: any[] | undefined) => {
   let total = 0;
   table?.map((value) => {
     total += value.price;
   });
 
   return total;
-}
+};
 
 export const formatDate = (date: Date) => {
-  const options: any = {day: 'numeric',  month: 'long', year: 'numeric' };
+  const options: any = { day: "numeric", month: "long", year: "numeric" };
   return date.toLocaleDateString("en-US", options);
-}
+};
 
 export const numStr = (a: string, b: string) => {
-  a = '' + a;
-  b = b || ' ';
-  var c = '',
-      d = 0;
+  a = "" + a;
+  b = b || " ";
+  var c = "",
+    d = 0;
   while (a.match(/^0[0-9]/)) {
     a = a.substr(1);
   }
-  for (var i = a.length-1; i >= 0; i--) {
-    c = (d != 0 && d % 3 == 0) ? a[i] + b + c : a[i] + c;
+  for (var i = a.length - 1; i >= 0; i--) {
+    c = d != 0 && d % 3 == 0 ? a[i] + b + c : a[i] + c;
     d++;
   }
   return c;
-}
+};
+
+export const retreiveGroup = (
+  incomesOrExpenses: IncomeInterface[] | ExpenseInterface[],
+  poultries: PoultryInterface[]
+) => {
+  const groupName: string[] = [];
+  poultries.map((poultry) => {
+    incomesOrExpenses.map((incomeOrExpense) => {
+      if (incomeOrExpense.idPoultry == poultry.id) {
+        groupName.push(poultry.groupName);
+      }
+    });
+  });
+  
+  return groupName;
+};

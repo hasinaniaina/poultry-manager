@@ -108,15 +108,15 @@ export default function ExpensesInputs() {
 
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Price</Text>
+          <Text style={styles.titleInput}>Price (Ariary)</Text>
           <View style={styles.listInputcontainer}>
             <TextInput
               keyboardType="numeric"
               style={styles.input}
-              value={data?.price.toString()}
+              value={data?.price ? String(data?.price) : ""}
               onChangeText={(price) => {
                 const priceTmp = { ...data! };
-                priceTmp.price = parseFloat(price);
+                priceTmp.price = !isNaN(Number(price)) ? Number(price) : null;
                 setData(priceTmp);
               }}
             ></TextInput>

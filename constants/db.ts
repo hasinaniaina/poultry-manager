@@ -1,6 +1,6 @@
 import * as SQlite from "expo-sqlite";
 import uuid from "uuid-random";
-import { EggInterface, ExpenseInterface, PoultryInterface } from "./interface";
+import { EggInterface, ExpenseInterface, IncomeInterface, PoultryInterface } from "./interface";
 
 const db = SQlite.openDatabaseAsync("poultryManager", {
   useNewConnection: true,
@@ -273,5 +273,88 @@ export const updateExpenses = async (data: ExpenseInterface): Promise<boolean> =
   } catch (error) {
     console.log("Update Poultry error: ", error);
     return false
+  }
+}
+
+export const insertIncome = async (data: IncomeInterface) => {
+  const id = uuid();
+  let response = false;
+  try {
+    const result = await (await db).runAsync(
+      "INSERT INTO Income (id, idPoultry, label, price, quantity) VALUES (?, ?, ?, ?, ?)",
+      id,
+      data.idPoultry,
+      data.label,
+      data.price,
+      data.quantity
+    );
+
+    if (result.changes) {
+      response = true;
+    }
+
+    return response;
+
+  } catch (error) {
+    console.log("Expense insertion error: ", error);
+    return false;    
+  }
+}
+
+
+export const getIncome = async (): Promise<IncomeInterface[] | undefined> => {
+  try {
+    const result = await (
+      await db
+    ).getAllAsync(
+      `
+      SELECT * FROM Income
+      `
+    );
+
+    return result as IncomeInterface[];
+  } catch (error) {
+    console.log("GetPoultry error:", error);
+    return undefined;
+  }
+};
+
+
+export const updateIncome = async (data: IncomeInterface): Promise<boolean> => {
+  let response = false; 
+  try {
+    const result = await (await db).runAsync(
+      "UPDATE Income SET label= ? , price= ? , idPoultry= ?, quantity= ? WHERE id= ? ",
+      data.label,
+      data.price,
+      data.idPoultry,
+      data.quantity,
+      data.id
+    );
+
+    if (result.changes) {
+      response =  true;
+    }
+    
+    return response;
+    
+  } catch (error) {
+    console.log("Update Poultry error: ", error);
+    return false
+  }
+}
+
+
+export const deleteIncome = async(id: string): Promise<boolean> => {
+  try {
+    const result = await (
+      await db
+    ).runAsync(`
+      DELETE FROM Income WHERE id='${id}'
+    `);
+
+    return true;
+  } catch (error) {
+    return false;
   }
 }
