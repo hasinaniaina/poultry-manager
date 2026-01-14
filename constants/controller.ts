@@ -1,21 +1,25 @@
 import {
-    deleteExpense,
-    deleteIncome,
-    deletePoultry,
-    getExpense,
-    getIncome,
-    getPoultry,
-    insertExpense,
-    insertIncome,
-    insertPoultry,
-    updateExpenses,
-    updateIncome,
-    updatePoultry,
+  deleteAlert,
+  deleteExpense,
+  deleteIncome,
+  deletePoultry,
+  getAlert,
+  getExpense,
+  getIncome,
+  getPoultry,
+  insertAlert,
+  insertExpense,
+  insertIncome,
+  insertPoultry,
+  updateExpenses,
+  updateIncome,
+  updatePoultry,
 } from "./db";
 import {
-    ExpenseInterface,
-    IncomeInterface,
-    PoultryInterface,
+  AlertInterface,
+  ExpenseInterface,
+  IncomeInterface,
+  PoultryInterface,
 } from "./interface";
 
 export const createPoultry = async (
@@ -91,8 +95,8 @@ const editQuantity = async (data: IncomeInterface) => {
     }
   });
 
-  if (quantity < poultryFind!.quantity!) {
-    const newQuantity = poultryFind!.quantity! - quantity;
+  if (quantity! < poultryFind!.quantity!) {
+    const newQuantity = poultryFind!.quantity! - quantity!;
     const data: PoultryInterface = { ...poultryFind! };
     data.quantity = newQuantity;
     const result = await updatePoultry(data);
@@ -114,11 +118,11 @@ export const retrieveIncome = async (): Promise<
 };
 
 export const editIncome = async (data: IncomeInterface): Promise<boolean> => {
-  const quantityResult = await editQuantity(data);
+  // const quantityResult = await editQuantity(data);
 
-  if (!quantityResult) {
-    return false;
-  }
+  // if (!quantityResult) {
+  //   return false;
+  // }
   
   const result: boolean = await updateIncome(data);
   return result;
@@ -126,5 +130,25 @@ export const editIncome = async (data: IncomeInterface): Promise<boolean> => {
 
 export const removeIncome = async (id: string): Promise<boolean> => {
   const result: boolean = await deleteIncome(id);
+  return result;
+};
+
+export const createAlert = async (
+  data: AlertInterface
+): Promise<boolean> => {  
+  const result: boolean = await insertAlert(data);
+  return result;
+};
+
+export const retrieveAlert = async (): Promise<
+  AlertInterface[] | undefined
+> => {
+  const result = await getAlert();
+  
+  return result;
+};
+
+export const removeAlert = async (id: string): Promise<boolean> => {
+  const result: boolean = await deleteAlert(id);
   return result;
 };

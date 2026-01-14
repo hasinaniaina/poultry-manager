@@ -5,7 +5,7 @@ import {
 } from "@react-navigation/native";
 import Moment from "moment";
 import { createContext } from "react";
-import { removeExpense, removeIncome, removePoultry } from "./controller";
+import { removeAlert, removeExpense, removeIncome, removePoultry } from "./controller";
 import {
   BottomSheetContextType,
   ChangedViewContextType,
@@ -15,6 +15,8 @@ import {
 } from "./interface";
 
 export const dateFormated = (date: Date) => {
+  console.log(date);
+  
   return Moment(date).format("DD/MM/Y");
 };
 
@@ -65,6 +67,8 @@ export const removeItem = async (
       result = await removeExpense(id);
     case "income":
       result = await removeIncome(id);
+    case "alert":
+      result = await removeAlert(id);
   }
 
   return result;

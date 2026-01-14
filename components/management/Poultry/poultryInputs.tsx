@@ -75,6 +75,7 @@ export default function PoultryInputs() {
             <TextInput
               style={styles.input}
               value={data?.groupName}
+              placeholder="poultry"
               onChangeText={(groupName) => {
                 let poultryTmp = { ...data! };
                 (poultryTmp as PoultryInterface).groupName = groupName;
@@ -87,11 +88,12 @@ export default function PoultryInputs() {
 
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Quantity</Text>
+          <Text style={styles.titleInput}>Quantity (unity number)</Text>
           <View style={styles.listInputcontainer}>
             <TextInput
               keyboardType="numeric"
               style={styles.input}
+              placeholder="10"
               value={data?.quantity ? data?.quantity!.toString() : ""}
               onChangeText={(quantity) => {
                 let poultryTmp = { ...data! };
@@ -114,6 +116,7 @@ export default function PoultryInputs() {
             <TextInput
               keyboardType="numeric"
               style={styles.input}
+              placeholder="4"
               value={data?.age ? data?.age.toString() : ""}
               onChangeText={(age) => {
                 let poultryTmp = { ...data! };

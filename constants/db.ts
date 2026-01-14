@@ -1,6 +1,6 @@
 import * as SQlite from "expo-sqlite";
 import uuid from "uuid-random";
-import { EggInterface, ExpenseInterface, IncomeInterface, PoultryInterface } from "./interface";
+import { AlertInterface, EggInterface, ExpenseInterface, IncomeInterface, PoultryInterface } from "./interface";
 
 const db = SQlite.openDatabaseAsync("poultryManager", {
   useNewConnection: true,
@@ -46,7 +46,8 @@ const createTable = async () => {
             CREATE TABLE IF NOT EXISTS Alert (
             id TEXT PRIMARY KEY,
             label TEXT NOT NULL,
-            Date DATETIME DEFAULT CURRENT_TIMESTAMP);
+            idPoultry TEXT,            
+            Date DATETIME NOT NULL);
             `);
 
     console.log("Database initialized");
@@ -358,3 +359,62 @@ export const deleteIncome = async(id: string): Promise<boolean> => {
     return false;
   }
 }
+
+
+export const insertAlert = async (data: AlertInterface) => {
+  const id = uuid();
+  let response = false;
+  try {
+    const result = await (await db).runAsync(
+      "INSERT INTO Alert (id, label, idPoultry, date) VALUES (?, ?, ?, ?)",
+      id,
+      data.label,
+      data.idPoultry,
+      data.date
+    );
+
+    if (result.changes) {
+      response = true;
+    }
+
+    return response;
+
+  } catch (error) {
+    console.log("Expense insertion error: ", error);
+    return false;    
+  }
+}
+
+export const getAlert = async (): Promise<AlertInterface[] | undefined> => {
+  try {
+    const result = await (
+      await db
+    ).getAllAsync(
+      `
+      SELECT * FROM Alert
+      `
+    );
+
+    return result as AlertInterface[];
+  } catch (error) {
+    console.log("GetPoultry error:", error);
+    return undefined;
+  }
+};
+
+
+export const deleteAlert = async(id: string): Promise<boolean> => {
+  try {
+    const result = await (
+      await db
+    ).runAsync(`
+      DELETE FROM Alert WHERE id='${id}'
+    `);
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+

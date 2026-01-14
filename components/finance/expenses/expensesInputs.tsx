@@ -46,7 +46,7 @@ export default function ExpensesInputs() {
         dataTmp.id = dataToUpdate.id;
         result = await editExpense(dataTmp);
       } else {
-        const result = await createExpense(data);
+        result = await createExpense(data);
       }
 
       if (!result) {
@@ -95,6 +95,7 @@ export default function ExpensesInputs() {
             <TextInput
               keyboardType="default"
               style={styles.input}
+              placeholder="Feed purchase"
               value={data?.label}
               onChangeText={(label) => {
                 const labelTmp = { ...data! };
@@ -113,6 +114,7 @@ export default function ExpensesInputs() {
             <TextInput
               keyboardType="numeric"
               style={styles.input}
+              placeholder="10500"
               value={data?.price ? String(data?.price) : ""}
               onChangeText={(price) => {
                 const priceTmp = { ...data! };

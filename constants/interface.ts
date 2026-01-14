@@ -27,6 +27,14 @@ export interface IncomeInterface {
   idPoultry: string,
   createdDate?: string
 }
+
+export interface AlertInterface {
+  id: string,
+  label: string,
+  idPoultry: string,
+  date: string
+}
+
 export interface BottomSheetContextType {
   bottomSheetStatus: boolean;
   setBottomSheetStatus: React.Dispatch<React.SetStateAction<boolean>>;

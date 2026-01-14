@@ -1,7 +1,11 @@
+import { createAlert, retrievePoultry } from "@/constants/controller";
+import { AlertInterface, PoultryInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
+import { useChangedStore } from "@/constants/store";
+import { toastConfig } from "@/constants/toastConfig";
 import { dateFormated } from "@/constants/utils";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,12 +13,66 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Dropdown } from "react-native-element-dropdown";
+import Toast from "react-native-toast-message";
 
 export default function AlertInputs() {
-  const [eggsDate, setEggsDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
-  const data = [
+  const [data, setData] = useState<AlertInterface | undefined>();
+
+  const changed = useChangedStore((state) => state.changed);
+  const setChangedTrue = useChangedStore((state) => state.setChangedTrue);
+  const [groups, setGroups] = useState<PoultryInterface[] | null>();
+
+  const sendData = async () => {
+    if (data && data?.label && data?.date && data?.idPoultry) {
+      const result = await createAlert(data);
+
+      if (!result) {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong!",
+        });
+      } else {
+        Toast.show({
+          type: "success",
+          text1: "Expense inserted!",
+        });
+
+        setChangedTrue();
+        // if (dataToUpdate) {
+        //   setTimeout(() => {
+        //     setBottomSheetStatus(false);
+        //     setDataToUpdate(undefined);
+        //   }, 1000);
+        // }
+
+        setChangedTrue();
+        setData(undefined);
+      }
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "All fields should not be empty!",
+      });
+    }
+  };
+
+  let groupList: any[] = [];
+
+  groups?.map((group) => {
+    groupList.push({ label: group.groupName, value: group.id });
+  });
+
+  useEffect(() => {
+    (async () => {
+      const groupTmp = await retrievePoultry();
+      setGroups(groupTmp);
+    })();
+  }, [changed]);
+
+  const dataTmp = [
     { label: "Item 1", value: "1" },
     { label: "Item 2", value: "2" },
     { label: "Item 3", value: "3" },
@@ -28,9 +86,43 @@ export default function AlertInputs() {
     <View>
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
+          <Text style={styles.titleInput}>Group</Text>
+          <View style={styles.listInputcontainer}>
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              iconStyle={styles.iconStyle}
+              data={groupList!}
+              search
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder="Select Group"
+              searchPlaceholder="Search..."
+              value={data?.idPoultry}
+              onChange={(group) => {
+                const groupTmp = { ...data! };
+                groupTmp.idPoultry = group.value;
+                setData(groupTmp);
+              }}
+            />
+          </View>
+        </View>
+      </View>
+      <View style={styles.inputItem}>
+        <View style={styles.InputContainer}>
           <Text style={styles.titleInput}>Label</Text>
           <View style={styles.listInputcontainer}>
-            <TextInput keyboardType="numeric" style={styles.input}></TextInput>
+            <TextInput
+              style={styles.input}
+              onChangeText={(label) => {
+                const dataTmp = { ...data! };
+                dataTmp.label = label;
+                setData(dataTmp);
+              }}
+            ></TextInput>
           </View>
         </View>
       </View>
@@ -43,14 +135,20 @@ export default function AlertInputs() {
               onPress={() => setShowDatePicker(true)}
               style={[styles.input, { paddingVertical: 10 }]}
             >
-              <Text>{dateFormated(eggsDate)}</Text>
+              <Text>
+                {data?.date
+                  ? dateFormated(new Date(data?.date!))
+                  : dateFormated(new Date())}
+              </Text>
             </TouchableOpacity>
             {showDatePicker && (
               <DateTimePicker
                 mode="date"
-                value={eggsDate}
+                value={data?.date ? new Date(data?.date!) : new Date()}
                 onChange={(event, selectedDate) => {
-                  setEggsDate(selectedDate!);
+                  const dataTmp = { ...data! };
+                  dataTmp.date = String(selectedDate!);
+                  setData(dataTmp);
                   setShowDatePicker(false);
                 }}
               />
@@ -59,9 +157,16 @@ export default function AlertInputs() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.buttonAdd}>
+      <TouchableOpacity
+        style={styles.buttonAdd}
+        onPress={async () => {
+          await sendData();
+        }}
+      >
         <Text style={styles.buttonText}>Add</Text>
       </TouchableOpacity>
+
+      <Toast config={toastConfig} position="bottom" bottomOffset={0} />
     </View>
   );
 }
@@ -101,17 +206,15 @@ const styles = StyleSheet.create({
   dropdown: {
     height: 50,
     borderBottomColor: "gray",
-    width: "90%"
+    width: "90%",
   },
   icon: {
     marginRight: 5,
   },
   placeholderStyle: {
-    color: appSettings.color.lowGrey
+    color: appSettings.color.lowGrey,
   },
-  selectedTextStyle: {
-    
-  },
+  selectedTextStyle: {},
   iconStyle: {
     width: 20,
     height: 20,

@@ -102,33 +102,35 @@ export default function IncomeInputs() {
   }, [changed]);
   return (
     <View>
-      <View style={styles.inputItem}>
-        <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Label</Text>
-          <View style={styles.listInputcontainer}>
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
-              data={dataLabel}
-              search
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Select label"
-              searchPlaceholder="Search..."
-              value={data?.label}
-              onChange={(item) => {
-                let dataTmp = { ...data! };
-                dataTmp.label = item.value;
-                setData(dataTmp);
-              }}
-            />
+      {!dataToUpdate && (
+        <View style={styles.inputItem}>
+          <View style={styles.InputContainer}>
+            <Text style={styles.titleInput}>Label</Text>
+            <View style={styles.listInputcontainer}>
+              <Dropdown
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={dataLabel}
+                search
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="Select label"
+                searchPlaceholder="Search..."
+                value={data?.label}
+                onChange={(item) => {
+                  let dataTmp = { ...data! };
+                  dataTmp.label = item.value;
+                  setData(dataTmp);
+                }}
+              />
+            </View>
           </View>
         </View>
-      </View>
+      )}
 
       <View style={styles.inputItem}>
         <View style={styles.InputContainer}>
@@ -148,54 +150,58 @@ export default function IncomeInputs() {
           </View>
         </View>
       </View>
-      <View style={styles.inputItem}>
-        <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Quantity (kg/unity)</Text>
-          <View style={styles.listInputcontainer}>
-            <TextInput
-              keyboardType="numeric"
-              style={styles.input}
-              placeholder="12"
-              value={data?.quantity ? String(data?.quantity) : ""}
-              onChangeText={(quantity) => {
-                let dataTmp = { ...data! };
-                dataTmp.quantity = !isNaN(Number(quantity))
-                  ? Number(quantity)
-                  : null;
-                setData(dataTmp);
-              }}
-            ></TextInput>
+      {!dataToUpdate && (
+        <>
+          <View style={styles.inputItem}>
+            <View style={styles.InputContainer}>
+              <Text style={styles.titleInput}>Quantity (kg/unity)</Text>
+              <View style={styles.listInputcontainer}>
+                <TextInput
+                  keyboardType="numeric"
+                  style={styles.input}
+                  placeholder="12"
+                  value={data?.quantity ? String(data?.quantity) : ""}
+                  onChangeText={(quantity) => {
+                    let dataTmp = { ...data! };
+                    dataTmp.quantity = !isNaN(Number(quantity))
+                      ? Number(quantity)
+                      : null;
+                    setData(dataTmp);
+                  }}
+                ></TextInput>
+              </View>
+            </View>
           </View>
-        </View>
-      </View>
 
-      <View style={styles.inputItem}>
-        <View style={styles.InputContainer}>
-          <Text style={styles.titleInput}>Group</Text>
-          <View style={styles.listInputcontainer}>
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
-              data={groupList}
-              search
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Select Group"
-              searchPlaceholder="Search..."
-              value={data?.idPoultry}
-              onChange={(item) => {
-                const dataTmp = { ...data! };
-                dataTmp.idPoultry = item.value;
-                setData(dataTmp);
-              }}
-            />
+          <View style={styles.inputItem}>
+            <View style={styles.InputContainer}>
+              <Text style={styles.titleInput}>Group</Text>
+              <View style={styles.listInputcontainer}>
+                <Dropdown
+                  style={styles.dropdown}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  inputSearchStyle={styles.inputSearchStyle}
+                  iconStyle={styles.iconStyle}
+                  data={groupList}
+                  search
+                  maxHeight={300}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select Group"
+                  searchPlaceholder="Search..."
+                  value={data?.idPoultry}
+                  onChange={(item) => {
+                    const dataTmp = { ...data! };
+                    dataTmp.idPoultry = item.value;
+                    setData(dataTmp);
+                  }}
+                />
+              </View>
+            </View>
           </View>
-        </View>
-      </View>
+        </>
+      )}
       <TouchableOpacity
         style={styles.buttonAdd}
         onPress={async () => {

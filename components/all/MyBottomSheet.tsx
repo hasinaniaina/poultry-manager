@@ -23,9 +23,13 @@ import EggsInputs from "../management/eggs/eggsInputs";
 import PoultryInputs from "../management/Poultry/poultryInputs";
 
 export default function MyBottomSheet() {
-  const setBottomSheetStatus = useBottomSheetStore((state) => state.setBottomSheetStatus);
-  const routeName = useBottomSheetStore((state) =>  state.routeName);
-  const bottomSheetStatus = useBottomSheetStore((state) => state.bottomSheetStatus);
+  const setBottomSheetStatus = useBottomSheetStore(
+    (state) => state.setBottomSheetStatus
+  );
+  const routeName = useBottomSheetStore((state) => state.routeName);
+  const bottomSheetStatus = useBottomSheetStore(
+    (state) => state.bottomSheetStatus
+  );
   const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
 
   const { top, bottom } = useSafeAreaInsets();
@@ -76,8 +80,9 @@ export default function MyBottomSheet() {
 
   const translateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [500, 0], // 500 = hors écran (à ajuster)
+    outputRange: [500, 0],
   });
+
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 40 : 0;
 
@@ -97,24 +102,20 @@ export default function MyBottomSheet() {
           ]}
         >
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>
-              Add {routeName}
-            </Text>
-            <TouchableOpacity onPress={() => {
-              slideDown();
-              setDataToUpdate(undefined);
-            }}>
+            <Text style={styles.title}>Add {routeName}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                slideDown();
+                setDataToUpdate(undefined);
+              }}
+            >
               <Ionicons name="close" size={30} color="black" />
             </TouchableOpacity>
           </View>
 
-          {routeName == "poultry" && (
-            <PoultryInputs />
-          )}
+          {routeName == "poultry" && <PoultryInputs />}
           {routeName == "eggs" && <EggsInputs />}
-          {routeName == "expenses" && (
-            <ExpensesInputs />
-          )}
+          {routeName == "expenses" && <ExpensesInputs />}
           {routeName == "income" && <IncomeInputs />}
           {routeName == "alert" && <AlertInputs />}
         </Animated.View>

@@ -66,6 +66,7 @@ export default function Income() {
                   setBottomSheetStatus(true);
                   setDataToUpdate(data!);
                 }}
+                key={data.id}
               >
                 <Image
                   source={require("@/assets/images/cash.png")}
