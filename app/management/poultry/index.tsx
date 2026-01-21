@@ -4,7 +4,7 @@ import { retrievePoultry } from "@/constants/controller";
 import { PoultryInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
 import { useBottomSheetStore, useChangedStore } from "@/constants/store";
-import { convertDaysToWeeks } from "@/constants/utils";
+import { calculTotalPoultries, convertDaysToWeeks } from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect, useState } from "react";
 import {
@@ -20,6 +20,7 @@ import {
 export default function Poultry() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [datas, setDatas] = useState<PoultryInterface[] | null>();
+  const [totalPoultry, setTotalPoultry] = useState<Number | undefined>();
   const [id, setId] = useState<string | null>();
 
   const changed = useChangedStore((state) => state.changed);
@@ -28,10 +29,10 @@ export default function Poultry() {
   const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
 
   const bottomSheetStatus = useBottomSheetStore(
-    (state) => state.bottomSheetStatus
+    (state) => state.bottomSheetStatus,
   );
   const setBottomSheetStatus = useBottomSheetStore(
-    (state) => state.setBottomSheetStatus
+    (state) => state.setBottomSheetStatus,
   );
   const routeName = useBottomSheetStore((state) => state.routeName);
   const setRouteName = useBottomSheetStore((state) => state.setRouteName);
@@ -42,6 +43,8 @@ export default function Poultry() {
     (async () => {
       const poultry = await retrievePoultry();
       setDatas(poultry);
+      const totalPoultryTmp = calculTotalPoultries(poultry!);
+      setTotalPoultry(totalPoultryTmp);
     })();
   }, [changed]);
 
@@ -49,7 +52,7 @@ export default function Poultry() {
     <View style={styles.container}>
       <View style={styles.totalPoultryContainer}>
         <Text style={styles.total}>Total: </Text>
-        <Text style={styles.number}>{datas?.length}&nbsp;poultries</Text>
+        <Text style={styles.number}>{String(totalPoultry)}&nbsp;poultries</Text>
       </View>
       {datas && datas.length > 0 ? (
         <ScrollView style={styles.scroll}>
@@ -71,9 +74,7 @@ export default function Poultry() {
                 <View style={styles.textMonthDateContainer}>
                   <Text style={styles.text}>{data.groupName}&nbsp;group</Text>
                   <Text style={styles.week}>
-                    { 
-                      convertDaysToWeeks(data.age!, data.createdDate!)
-                    }
+                    {convertDaysToWeeks(data.age!, data.createdDate!)}
                   </Text>
                   <Text style={styles.month}>
                     {data.quantity}&nbsp;poultries
@@ -96,7 +97,7 @@ export default function Poultry() {
           })}
         </ScrollView>
       ) : (
-        <NoList imageUrl={require("@/assets/images/chicken-noList.png")}/>
+        <NoList imageUrl={require("@/assets/images/chicken-noList.png")} />
       )}
       <Modals
         modalVisible={modalVisible}

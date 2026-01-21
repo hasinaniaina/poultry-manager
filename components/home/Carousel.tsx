@@ -1,6 +1,18 @@
+import {
+  retrieveExpense,
+  retrieveIncome,
+  retrievePoultry,
+} from "@/constants/controller";
+import {
+  ExpenseInterface,
+  IncomeInterface,
+  PoultryInterface,
+} from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
+import { useChangedStore } from "@/constants/store";
+import { calculTotal, calculTotalPoultries, numStr } from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -14,6 +26,12 @@ import {
 export default function Carousel() {
   const animation = useRef(new Animated.Value(0));
   const [currentAnimation, setCurrentAnimation] = useState<number>(0);
+  const [totalAmountExpenses, setTotalAmountExpenses] = useState<number>(0);
+  const [totalAmountIncome, setTotalAmountIncome] = useState<number>(0);
+  const [datas, setDatas] = useState<PoultryInterface[] | null>();
+  const [totalPoultry, setTotalPoultry] = useState<Number | undefined>();
+
+  const changed = useChangedStore((state) => state.changed);
 
   const handleCarouselforward = () => {
     let newCurrentAnimation =
@@ -38,6 +56,25 @@ export default function Carousel() {
 
     setCurrentAnimation(newCurrentAnimation);
   };
+
+  useEffect(() => {
+    (async () => {
+      const poultry = await retrievePoultry();
+      setDatas(poultry);
+
+      const dataExpenses: ExpenseInterface[] | undefined =
+        await retrieveExpense();
+      let totalAmountExpenses = calculTotal(dataExpenses);
+      setTotalAmountExpenses(totalAmountExpenses);
+
+      const dataIncome: IncomeInterface[] | undefined = await retrieveIncome();
+      let totalAmountIncome = calculTotal(dataExpenses);
+      setTotalAmountExpenses(totalAmountIncome);
+
+      const totalPoultryTmp = calculTotalPoultries(poultry!);
+      setTotalPoultry(totalPoultryTmp);
+    })();
+  }, [changed]);
 
   return (
     <View>
@@ -65,32 +102,40 @@ export default function Carousel() {
           <TouchableOpacity>
             <View style={styles.carouselItem}>
               <Image
-                source={require("@/assets/images/chicken.png")}
+                source={require("@/assets/images/poor.png")}
                 style={styles.icon}
               ></Image>
-              <Text style={styles.textAbove}>250</Text>
-              <Text style={styles.textBelow}>Total Poultry</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.carouselItem}>
-              <Image
-                source={require("@/assets/images/chicken-rice.png")}
-                style={styles.icon}
-              ></Image>
-              <Text style={styles.textAbove}>6 Kg</Text>
-              <Text style={styles.textBelow}>Feeding</Text>
+              <Text
+                style={[styles.textAbove, { color: appSettings.color.red }]}
+              >
+                {numStr(totalAmountExpenses.toString(), ".")}&nbsp;Ariary
+              </Text>
+              <Text style={styles.textBelow}>Total expenses</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity>
             <View style={styles.carouselItem}>
               <Image
-                source={require("@/assets/images/egg.png")}
+                source={require("@/assets/images/cash.png")}
                 style={styles.icon}
               ></Image>
-              <Text style={styles.textAbove}>20</Text>
-              <Text style={styles.textBelow}>Total Eggs</Text>
+              <Text
+                style={[styles.textAbove, { color: appSettings.color.blue }]}
+              >
+                {numStr(totalAmountIncome.toString(), ".")}&nbsp;Ariary
+              </Text>
+              <Text style={styles.textBelow}>Total Income</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.carouselItem}>
+              <Image
+                source={require("@/assets/images/chicken.png")}
+                style={styles.icon}
+              ></Image>
+              <Text style={styles.textAbove}>{String(totalPoultry)}</Text>
+              <Text style={styles.textBelow}>Total Poultry</Text>
             </View>
           </TouchableOpacity>
         </Animated.View>

@@ -11,6 +11,7 @@ import {
   insertExpense,
   insertIncome,
   insertPoultry,
+  updateAlert,
   updateExpenses,
   updateIncome,
   updatePoultry,
@@ -23,7 +24,7 @@ import {
 } from "./interface";
 
 export const createPoultry = async (
-  data: PoultryInterface
+  data: PoultryInterface,
 ): Promise<boolean> => {
   const result = await insertPoultry(data);
   return result;
@@ -46,7 +47,7 @@ export const editPoultry = async (data: PoultryInterface): Promise<boolean> => {
 };
 
 export const createExpense = async (
-  data: ExpenseInterface
+  data: ExpenseInterface,
 ): Promise<boolean> => {
   const result: boolean = await insertExpense(data);
   return result;
@@ -123,7 +124,7 @@ export const editIncome = async (data: IncomeInterface): Promise<boolean> => {
   // if (!quantityResult) {
   //   return false;
   // }
-  
+
   const result: boolean = await updateIncome(data);
   return result;
 };
@@ -133,9 +134,7 @@ export const removeIncome = async (id: string): Promise<boolean> => {
   return result;
 };
 
-export const createAlert = async (
-  data: AlertInterface
-): Promise<boolean> => {  
+export const createAlert = async (data: AlertInterface): Promise<boolean> => {
   const result: boolean = await insertAlert(data);
   return result;
 };
@@ -144,7 +143,12 @@ export const retrieveAlert = async (): Promise<
   AlertInterface[] | undefined
 > => {
   const result = await getAlert();
-  
+
+  return result;
+};
+
+export const editAlert = async (data: AlertInterface): Promise<boolean> => {
+  const result: boolean = await updateAlert(data);
   return result;
 };
 

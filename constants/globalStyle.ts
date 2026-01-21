@@ -9,7 +9,7 @@ export const globalStyle = StyleSheet.create({
   },
   noListText: {
     fontSize: 30,
-    fontWeight: 500,
+    fontWeight: 300,
     paddingVertical: 20,
-  },   
-})
+  },
+});

@@ -1,10 +1,15 @@
 import NoList from "@/components/all/noList";
 import Modals from "@/components/management/modals";
 import { retrieveIncome, retrievePoultry } from "@/constants/controller";
-import { IncomeInterface } from "@/constants/interface";
+import { GroupNameProps, IncomeInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
 import { useBottomSheetStore, useChangedStore } from "@/constants/store";
-import { calculTotal, formatDate, numStr, retreiveGroup } from "@/constants/utils";
+import {
+  calculTotal,
+  formatDate,
+  numStr,
+  retreiveGroup,
+} from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect, useState } from "react";
 import {
@@ -24,10 +29,10 @@ export default function Income() {
   const [datas, setDatas] = useState<IncomeInterface[] | undefined>();
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [id, setId] = useState<string>();
-    const [groupName, setGroupName] = useState<string[]>([]);
+  const [groupName, setGroupName] = useState<GroupNameProps[]>([]);
 
   const setBottomSheetStatus = useBottomSheetStore(
-    (state) => state.setBottomSheetStatus
+    (state) => state.setBottomSheetStatus,
   );
   const setRouteName = useBottomSheetStore((state) => state.setRouteName);
 
@@ -73,7 +78,10 @@ export default function Income() {
                   style={styles.image}
                 />
                 <View style={styles.textPriceDateContainer}>
-                  <Text style={styles.text}>{groupName[index]}&nbsp;-&nbsp;{data.label}</Text>
+                  <Text style={styles.text}>
+                    {groupName.find((item) => item.id === data.id)?.groupName}
+                    &nbsp;-&nbsp;{data.label}
+                  </Text>
                   <Text style={styles.price}>
                     {numStr(data.price!.toString(), ".")}&nbsp;Ariary
                   </Text>

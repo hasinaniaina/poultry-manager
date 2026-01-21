@@ -26,7 +26,7 @@ export default function IncomeInputs() {
   const addOrUpdate = useBottomSheetStore((state) => state.addOrUpdate);
   const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
   const setBottomSheetStatus = useBottomSheetStore(
-    (state) => state.setBottomSheetStatus
+    (state) => state.setBottomSheetStatus,
   );
 
   const changed = useChangedStore((state) => state.changed);
@@ -40,8 +40,6 @@ export default function IncomeInputs() {
   });
 
   const sendData = async () => {
-    console.log(data);
-
     if (
       data &&
       data?.label &&

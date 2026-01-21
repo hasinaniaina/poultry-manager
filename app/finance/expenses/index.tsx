@@ -1,10 +1,15 @@
 import NoList from "@/components/all/noList";
 import Modals from "@/components/management/modals";
 import { retrieveExpense, retrievePoultry } from "@/constants/controller";
-import { ExpenseInterface } from "@/constants/interface";
+import { ExpenseInterface, GroupNameProps } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
 import { useBottomSheetStore, useChangedStore } from "@/constants/store";
-import { calculTotal, formatDate, numStr, retreiveGroup } from "@/constants/utils";
+import {
+  calculTotal,
+  formatDate,
+  numStr,
+  retreiveGroup,
+} from "@/constants/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect, useState } from "react";
 import {
@@ -24,14 +29,14 @@ export default function Expenses() {
   const [datas, setDatas] = useState<ExpenseInterface[] | undefined>();
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [id, setId] = useState<string>();
-  const [groupName, setGroupName] = useState<string[]>([]);
+  const [groupName, setGroupName] = useState<GroupNameProps[]>([]);
   const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
 
   const bottomSheetStatus = useBottomSheetStore(
-    (state) => state.bottomSheetStatus
+    (state) => state.bottomSheetStatus,
   );
   const setBottomSheetStatus = useBottomSheetStore(
-    (state) => state.setBottomSheetStatus
+    (state) => state.setBottomSheetStatus,
   );
   const routeName = useBottomSheetStore((state) => state.routeName);
   const setRouteName = useBottomSheetStore((state) => state.setRouteName);
@@ -41,7 +46,6 @@ export default function Expenses() {
     (async () => {
       const dataTmp: ExpenseInterface[] | undefined = await retrieveExpense();
       const poultries = await retrievePoultry();
-
       const groupNameTmp = retreiveGroup(dataTmp!, poultries!);
       setGroupName(groupNameTmp);
 
@@ -77,9 +81,12 @@ export default function Expenses() {
                   style={styles.image}
                 />
                 <View style={styles.textPriceDateContainer}>
-                  <Text style={styles.text}>{groupName[index]}&nbsp;-&nbsp;{data.label}</Text>
+                  <Text style={styles.text}>
+                    {groupName.find((item) => item.id === data.id)?.groupName}
+                    &nbsp;-&nbsp;{data.label}
+                  </Text>
                   <Text style={styles.price}>
-                    {numStr(data.price.toString(), ".")}&nbsp;Ariary
+                    {numStr(data.price!.toString(), ".")}&nbsp;Ariary
                   </Text>
                   <Text style={styles.month}>
                     {formatDate(new Date(data.createdDate!))}

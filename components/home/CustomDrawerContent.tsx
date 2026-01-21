@@ -18,7 +18,10 @@ export default function CustomDrawerContent(props: any) {
       <TouchableOpacity
         style={styles.menuItem}
         onPress={() => {
-          navigation.navigate({pathname: "/management/poultry",  params: {title: "poultry"}});
+          navigation.navigate({
+            pathname: "/management/poultry",
+            params: { title: "poultry" },
+          });
         }}
       >
         <Ionicons
@@ -33,7 +36,10 @@ export default function CustomDrawerContent(props: any) {
       <TouchableOpacity
         style={styles.menuItem}
         onPress={() => {
-          navigation.navigate({pathname:"/finance/expenses",  params: {title: "expenses"}});
+          navigation.navigate({
+            pathname: "/finance/expenses",
+            params: { title: "expenses" },
+          });
         }}
       >
         <Ionicons
@@ -57,9 +63,15 @@ export default function CustomDrawerContent(props: any) {
         <Text style={styles.menuText}>Stock management</Text>
         <Ionicons name="chevron-forward-outline" size={20} color="black" />
       </TouchableOpacity> */}
-      <TouchableOpacity style={styles.menuItem} onPress={() => {
-        navigation.navigate({pathname:"/alert",  params: {title: "alert"}});
-      }}>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => {
+          navigation.navigate({
+            pathname: "/alert",
+            params: { title: "alert" },
+          });
+        }}
+      >
         <Ionicons
           name="medkit-outline"
           style={styles.icon}
@@ -69,9 +81,15 @@ export default function CustomDrawerContent(props: any) {
         <Text style={styles.menuText}>Alert</Text>
         <Ionicons name="chevron-forward-outline" size={20} color="black" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menuItem} onPress={() => {
-        navigation.navigate({pathname:"/alert",  params: {title: "statistic"}});
-      }}>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => {
+          navigation.navigate({
+            pathname: "/alert",
+            params: { title: "statistic" },
+          });
+        }}
+      >
         <Ionicons
           name="stats-chart-outline"
           style={styles.icon}

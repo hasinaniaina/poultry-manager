@@ -1,7 +1,11 @@
-import { createAlert, retrievePoultry } from "@/constants/controller";
+import {
+  createAlert,
+  editAlert,
+  retrievePoultry,
+} from "@/constants/controller";
 import { AlertInterface, PoultryInterface } from "@/constants/interface";
 import { appSettings } from "@/constants/settings";
-import { useChangedStore } from "@/constants/store";
+import { useBottomSheetStore, useChangedStore } from "@/constants/store";
 import { toastConfig } from "@/constants/toastConfig";
 import { dateFormated } from "@/constants/utils";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -16,10 +20,20 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
 
+const alertProps = { date: String(new Date()), idPoultry: "", label: "" };
+
 export default function AlertInputs() {
+  const dataToUpdate = useBottomSheetStore((state) => state.dataToUpdate);
+  const setDataToUpdate = useBottomSheetStore((state) => state.setDataToUpdate);
+  const setBottomSheetStatus = useBottomSheetStore(
+    (state) => state.setBottomSheetStatus,
+  );
+
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
-  const [data, setData] = useState<AlertInterface | undefined>();
+  const [data, setData] = useState<AlertInterface | undefined>(
+    dataToUpdate ? dataToUpdate : alertProps,
+  );
 
   const changed = useChangedStore((state) => state.changed);
   const setChangedTrue = useChangedStore((state) => state.setChangedTrue);
@@ -27,7 +41,14 @@ export default function AlertInputs() {
 
   const sendData = async () => {
     if (data && data?.label && data?.date && data?.idPoultry) {
-      const result = await createAlert(data);
+      let result: any = {};
+      if (dataToUpdate) {
+        const dataTmp = { ...data };
+        dataTmp.id = dataToUpdate.id;
+        result = await editAlert(dataTmp);
+      } else {
+        result = await createAlert(data);
+      }
 
       if (!result) {
         Toast.show({
@@ -40,13 +61,12 @@ export default function AlertInputs() {
           text1: "Expense inserted!",
         });
 
-        setChangedTrue();
-        // if (dataToUpdate) {
-        //   setTimeout(() => {
-        //     setBottomSheetStatus(false);
-        //     setDataToUpdate(undefined);
-        //   }, 1000);
-        // }
+        if (dataToUpdate) {
+          setTimeout(() => {
+            setBottomSheetStatus(false);
+            setDataToUpdate(undefined);
+          }, 1000);
+        }
 
         setChangedTrue();
         setData(undefined);
@@ -72,16 +92,6 @@ export default function AlertInputs() {
     })();
   }, [changed]);
 
-  const dataTmp = [
-    { label: "Item 1", value: "1" },
-    { label: "Item 2", value: "2" },
-    { label: "Item 3", value: "3" },
-    { label: "Item 4", value: "4" },
-    { label: "Item 5", value: "5" },
-    { label: "Item 6", value: "6" },
-    { label: "Item 7", value: "7" },
-    { label: "Item 8", value: "8" },
-  ];
   return (
     <View>
       <View style={styles.inputItem}>
@@ -117,6 +127,7 @@ export default function AlertInputs() {
           <View style={styles.listInputcontainer}>
             <TextInput
               style={styles.input}
+              value={data?.label}
               onChangeText={(label) => {
                 const dataTmp = { ...data! };
                 dataTmp.label = label;
@@ -144,10 +155,12 @@ export default function AlertInputs() {
             {showDatePicker && (
               <DateTimePicker
                 mode="date"
+                minimumDate={new Date()}
+                design="material"
                 value={data?.date ? new Date(data?.date!) : new Date()}
                 onChange={(event, selectedDate) => {
                   const dataTmp = { ...data! };
-                  dataTmp.date = String(selectedDate!);
+                  dataTmp.date = selectedDate!.toISOString();
                   setData(dataTmp);
                   setShowDatePicker(false);
                 }}
@@ -163,7 +176,11 @@ export default function AlertInputs() {
           await sendData();
         }}
       >
-        <Text style={styles.buttonText}>Add</Text>
+        {dataToUpdate ? (
+          <Text style={styles.buttonText}>Update</Text>
+        ) : (
+          <Text style={styles.buttonText}>Add</Text>
+        )}
       </TouchableOpacity>
 
       <Toast config={toastConfig} position="bottom" bottomOffset={0} />

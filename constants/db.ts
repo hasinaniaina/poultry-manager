@@ -1,6 +1,12 @@
 import * as SQlite from "expo-sqlite";
 import uuid from "uuid-random";
-import { AlertInterface, EggInterface, ExpenseInterface, IncomeInterface, PoultryInterface } from "./interface";
+import {
+  AlertInterface,
+  EggInterface,
+  ExpenseInterface,
+  IncomeInterface,
+  PoultryInterface,
+} from "./interface";
 
 const db = SQlite.openDatabaseAsync("poultryManager", {
   useNewConnection: true,
@@ -47,7 +53,7 @@ const createTable = async () => {
             id TEXT PRIMARY KEY,
             label TEXT NOT NULL,
             idPoultry TEXT,            
-            Date DATETIME NOT NULL);
+            date DATETIME NOT NULL);
             `);
 
     console.log("Database initialized");
@@ -85,9 +91,7 @@ export const closeAsync = async () => {
   await (await db).closeAsync();
 };
 
-export const insertEgg = async (
-  data: EggInterface
-): Promise<boolean> => {
+export const insertEgg = async (data: EggInterface): Promise<boolean> => {
   const id = uuid();
   let result = false;
 
@@ -98,7 +102,7 @@ export const insertEgg = async (
       "INSERT INTO Egg (id, quantity, idPoultry) VALUES (?, ?, ?, ?)",
       id,
       data.quantity,
-      data.idPoultry
+      data.idPoultry,
     );
 
     if (createEgg.changes) {
@@ -113,7 +117,7 @@ export const insertEgg = async (
 };
 
 export const insertPoultry = async (
-  data: PoultryInterface
+  data: PoultryInterface,
 ): Promise<boolean> => {
   const id = uuid();
   let result = false;
@@ -126,7 +130,7 @@ export const insertPoultry = async (
       id,
       data.quantity,
       data.groupName,
-      data.age
+      data.age,
     );
 
     if (createPoultry.changes) {
@@ -147,17 +151,16 @@ export const getPoultry = async () => {
     ).getAllAsync(
       `
       SELECT * FROM Poultry
-      `
+      `,
     );
 
     return result as PoultryInterface[];
   } catch (error) {
     console.log("GetPoultry error:", error);
-    
+
     return null;
   }
 };
-
 
 export const deletePoultry = async (id: string): Promise<boolean> => {
   try {
@@ -168,46 +171,24 @@ export const deletePoultry = async (id: string): Promise<boolean> => {
     `);
 
     return true;
-    
-
   } catch (error) {
     return false;
   }
 };
 
-export const updatePoultry = async (data: PoultryInterface): Promise<boolean> => {
-  let response = false; 
+export const updatePoultry = async (
+  data: PoultryInterface,
+): Promise<boolean> => {
+  let response = false;
   try {
-    const result = await (await db).runAsync(
+    const result = await (
+      await db
+    ).runAsync(
       "UPDATE Poultry SET quantity= ? , groupName= ? , age= ? WHERE id= ? ",
       data.quantity,
       data.groupName,
       data.age,
-      data.id
-    );
-
-    if (result.changes) {
-      response =  true;
-    }
-    
-    return response;
-    
-  } catch (error) {
-    console.log("Update Poultry error: ", error);
-    return false
-  }
-}
-
-export const insertExpense = async (data: ExpenseInterface) => {
-  const id = uuid();
-  let response = false;
-  try {
-    const result = await (await db).runAsync(
-      "INSERT INTO Expense (id, idPoultry, label, price) VALUES (?, ?, ?, ?)",
-      id,
-      data.idPoultry,
-      data.label,
-      data.price
+      data.id,
     );
 
     if (result.changes) {
@@ -215,13 +196,36 @@ export const insertExpense = async (data: ExpenseInterface) => {
     }
 
     return response;
+  } catch (error) {
+    console.log("Update Poultry error: ", error);
+    return false;
+  }
+};
 
+export const insertExpense = async (data: ExpenseInterface) => {
+  const id = uuid();
+  let response = false;
+  try {
+    const result = await (
+      await db
+    ).runAsync(
+      "INSERT INTO Expense (id, idPoultry, label, price) VALUES (?, ?, ?, ?)",
+      id,
+      data.idPoultry,
+      data.label,
+      data.price,
+    );
+
+    if (result.changes) {
+      response = true;
+    }
+
+    return response;
   } catch (error) {
     console.log("Expense insertion error: ", error);
-    return false;    
+    return false;
   }
-}
-
+};
 
 export const getExpense = async (): Promise<ExpenseInterface[] | undefined> => {
   try {
@@ -230,7 +234,7 @@ export const getExpense = async (): Promise<ExpenseInterface[] | undefined> => {
     ).getAllAsync(
       `
       SELECT * FROM Expense
-      `
+      `,
     );
 
     return result as ExpenseInterface[];
@@ -240,7 +244,7 @@ export const getExpense = async (): Promise<ExpenseInterface[] | undefined> => {
   }
 };
 
-export const deleteExpense = async(id: string): Promise<boolean> => {
+export const deleteExpense = async (id: string): Promise<boolean> => {
   try {
     const result = await (
       await db
@@ -252,42 +256,21 @@ export const deleteExpense = async(id: string): Promise<boolean> => {
   } catch (error) {
     return false;
   }
-}
+};
 
-export const updateExpenses = async (data: ExpenseInterface): Promise<boolean> => {
-  let response = false; 
+export const updateExpenses = async (
+  data: ExpenseInterface,
+): Promise<boolean> => {
+  let response = false;
   try {
-    const result = await (await db).runAsync(
+    const result = await (
+      await db
+    ).runAsync(
       "UPDATE Expense SET label= ? , price= ? , idPoultry= ? WHERE id= ? ",
       data.label,
       data.price,
       data.idPoultry,
-      data.id
-    );
-
-    if (result.changes) {
-      response =  true;
-    }
-    
-    return response;
-    
-  } catch (error) {
-    console.log("Update Poultry error: ", error);
-    return false
-  }
-}
-
-export const insertIncome = async (data: IncomeInterface) => {
-  const id = uuid();
-  let response = false;
-  try {
-    const result = await (await db).runAsync(
-      "INSERT INTO Income (id, idPoultry, label, price, quantity) VALUES (?, ?, ?, ?, ?)",
-      id,
-      data.idPoultry,
-      data.label,
-      data.price,
-      data.quantity
+      data.id,
     );
 
     if (result.changes) {
@@ -295,13 +278,37 @@ export const insertIncome = async (data: IncomeInterface) => {
     }
 
     return response;
+  } catch (error) {
+    console.log("Update Poultry error: ", error);
+    return false;
+  }
+};
 
+export const insertIncome = async (data: IncomeInterface) => {
+  const id = uuid();
+  let response = false;
+  try {
+    const result = await (
+      await db
+    ).runAsync(
+      "INSERT INTO Income (id, idPoultry, label, price, quantity) VALUES (?, ?, ?, ?, ?)",
+      id,
+      data.idPoultry,
+      data.label,
+      data.price,
+      data.quantity,
+    );
+
+    if (result.changes) {
+      response = true;
+    }
+
+    return response;
   } catch (error) {
     console.log("Expense insertion error: ", error);
-    return false;    
+    return false;
   }
-}
-
+};
 
 export const getIncome = async (): Promise<IncomeInterface[] | undefined> => {
   try {
@@ -310,7 +317,7 @@ export const getIncome = async (): Promise<IncomeInterface[] | undefined> => {
     ).getAllAsync(
       `
       SELECT * FROM Income
-      `
+      `,
     );
 
     return result as IncomeInterface[];
@@ -320,33 +327,32 @@ export const getIncome = async (): Promise<IncomeInterface[] | undefined> => {
   }
 };
 
-
 export const updateIncome = async (data: IncomeInterface): Promise<boolean> => {
-  let response = false; 
+  let response = false;
   try {
-    const result = await (await db).runAsync(
+    const result = await (
+      await db
+    ).runAsync(
       "UPDATE Income SET label= ? , price= ? , idPoultry= ?, quantity= ? WHERE id= ? ",
       data.label,
       data.price,
       data.idPoultry,
       data.quantity,
-      data.id
+      data.id,
     );
 
     if (result.changes) {
-      response =  true;
+      response = true;
     }
-    
+
     return response;
-    
   } catch (error) {
     console.log("Update Poultry error: ", error);
-    return false
+    return false;
   }
-}
+};
 
-
-export const deleteIncome = async(id: string): Promise<boolean> => {
+export const deleteIncome = async (id: string): Promise<boolean> => {
   try {
     const result = await (
       await db
@@ -358,19 +364,20 @@ export const deleteIncome = async(id: string): Promise<boolean> => {
   } catch (error) {
     return false;
   }
-}
-
+};
 
 export const insertAlert = async (data: AlertInterface) => {
   const id = uuid();
   let response = false;
   try {
-    const result = await (await db).runAsync(
+    const result = await (
+      await db
+    ).runAsync(
       "INSERT INTO Alert (id, label, idPoultry, date) VALUES (?, ?, ?, ?)",
       id,
       data.label,
       data.idPoultry,
-      data.date
+      data.date,
     );
 
     if (result.changes) {
@@ -378,12 +385,11 @@ export const insertAlert = async (data: AlertInterface) => {
     }
 
     return response;
-
   } catch (error) {
     console.log("Expense insertion error: ", error);
-    return false;    
+    return false;
   }
-}
+};
 
 export const getAlert = async (): Promise<AlertInterface[] | undefined> => {
   try {
@@ -392,7 +398,7 @@ export const getAlert = async (): Promise<AlertInterface[] | undefined> => {
     ).getAllAsync(
       `
       SELECT * FROM Alert
-      `
+      `,
     );
 
     return result as AlertInterface[];
@@ -402,8 +408,31 @@ export const getAlert = async (): Promise<AlertInterface[] | undefined> => {
   }
 };
 
+export const updateAlert = async (data: AlertInterface): Promise<boolean> => {
+  let response = false;
+  try {
+    const result = await (
+      await db
+    ).runAsync(
+      "UPDATE Alert SET label= ? , idPoultry= ?, date= ? WHERE id= ? ",
+      data.label,
+      data.idPoultry,
+      data.date,
+      data.id!,
+    );
 
-export const deleteAlert = async(id: string): Promise<boolean> => {
+    if (result.changes) {
+      response = true;
+    }
+
+    return response;
+  } catch (error) {
+    console.log("Update Alert error: ", error);
+    return false;
+  }
+};
+
+export const deleteAlert = async (id: string): Promise<boolean> => {
   try {
     const result = await (
       await db
@@ -415,6 +444,4 @@ export const deleteAlert = async(id: string): Promise<boolean> => {
   } catch (error) {
     return false;
   }
-}
-
-
+};

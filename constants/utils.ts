@@ -5,18 +5,23 @@ import {
 } from "@react-navigation/native";
 import Moment from "moment";
 import { createContext } from "react";
-import { removeAlert, removeExpense, removeIncome, removePoultry } from "./controller";
 import {
+  removeAlert,
+  removeExpense,
+  removeIncome,
+  removePoultry,
+} from "./controller";
+import {
+  AlertInterface,
   BottomSheetContextType,
   ChangedViewContextType,
   ExpenseInterface,
+  GroupNameProps,
   IncomeInterface,
   PoultryInterface,
 } from "./interface";
 
 export const dateFormated = (date: Date) => {
-  console.log(date);
-  
   return Moment(date).format("DD/MM/Y");
 };
 
@@ -30,7 +35,7 @@ export const getRouteName = (router: RouteProp<ParamListBase>) => {
   return useNavigationState((state) =>
     state.routes[state.index].name == "index"
       ? (router.params as { title: string }).title
-      : state.routes[state.index].name
+      : state.routes[state.index].name,
   );
 };
 
@@ -57,7 +62,7 @@ export const convertDaysToWeeks = (days: number, createdDate: Date) => {
 
 export const removeItem = async (
   id: string,
-  view: string
+  view: string,
 ): Promise<boolean> => {
   let result = false;
   switch (view) {
@@ -78,6 +83,17 @@ export const calculTotal = (table: any[] | undefined) => {
   let total = 0;
   table?.map((value) => {
     total += value.price;
+  });
+
+  return total;
+};
+
+export const calculTotalPoultries = (
+  poultries: PoultryInterface[] | undefined,
+) => {
+  let total = 0;
+  poultries?.map((poultry) => {
+    total += poultry.quantity!;
   });
 
   return total;
@@ -104,17 +120,47 @@ export const numStr = (a: string, b: string) => {
 };
 
 export const retreiveGroup = (
-  incomesOrExpenses: IncomeInterface[] | ExpenseInterface[],
-  poultries: PoultryInterface[]
+  incomesOrExpensesOrAlerts:
+    | IncomeInterface[]
+    | ExpenseInterface[]
+    | AlertInterface[],
+  poultries: PoultryInterface[],
 ) => {
-  const groupName: string[] = [];
+  const groupName: GroupNameProps[] = [];
   poultries.map((poultry) => {
-    incomesOrExpenses.map((incomeOrExpense) => {
-      if (incomeOrExpense.idPoultry == poultry.id) {
-        groupName.push(poultry.groupName);
+    incomesOrExpensesOrAlerts.map((incomesOrExpensesOrAlert) => {
+      if (incomesOrExpensesOrAlert.idPoultry == poultry.id) {
+        const props = {
+          id: incomesOrExpensesOrAlert.id!,
+          groupName: poultry.groupName!,
+        };
+        groupName.push(props);
       }
     });
   });
-  
+
   return groupName;
+};
+
+export const deprecatedAlert = (alerts: AlertInterface[]) => {
+  let idAlerts: string[] = [];
+
+  alerts.map((alert) => {
+    const currentDate = new Date();
+    if (new Date(alert.date) < currentDate) {
+      idAlerts.push(alert.id!);
+    }
+  });
+
+  return idAlerts;
+};
+
+export const removeIndexAlertArray = (
+  alerts: AlertInterface[],
+  idAlert: string,
+) => {
+  alerts.splice(
+    alerts.findIndex((alert) => alert.id === idAlert),
+    1,
+  );
 };
