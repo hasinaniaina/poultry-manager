@@ -156,7 +156,6 @@ export default function AlertInputs() {
               <DateTimePicker
                 mode="date"
                 minimumDate={new Date()}
-                design="material"
                 value={data?.date ? new Date(data?.date!) : new Date()}
                 onChange={(event, selectedDate) => {
                   const dataTmp = { ...data! };

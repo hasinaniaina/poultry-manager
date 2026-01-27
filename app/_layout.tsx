@@ -28,10 +28,7 @@ export default function RootLayout() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="home" />
-        <Stack.Screen name="management" />
-        <Stack.Screen name="finance" />
-        <Stack.Screen name="alert" />
+        <Stack.Screen name="index" />
       </Stack>
     </SQLiteProvider>
   );
